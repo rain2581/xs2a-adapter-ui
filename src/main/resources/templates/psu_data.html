@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>PSU data</title>
 
+    <link rel="stylesheet" th:href="@{/main.css}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script th:src="@{/main.js}"></script>
@@ -16,10 +17,16 @@
         <div class="form-group">
             <label for="psuIban">IBAN</label>
             <input type="text" class="form-control" id="psuIban">
+            <div id="invalid-iban" class="invalid-feedback">
+                IBAN is empty or has incorrect format
+            </div>
         </div>
         <div class="form-group">
             <label for="psuId">PSU ID</label>
-            <input type="text" class="form-control" id="psuId">
+            <input type="text" class="form-control" id="psuId" required>
+            <div id="invalid-psu-id" class="invalid-feedback">
+                PSU ID is empty
+            </div>
         </div>
         <h6 class="form-group">Transactions period</h6>
         <div class="form-group">
