@@ -44,4 +44,16 @@ public class PageController {
         // TODO change to the appropriate view
         return "";
     }
+
+    @GetMapping("/page/pin")
+    public String pin() {
+        return "pin";
+    }
+
+    @PostMapping("/page/pin")
+    public String pinInput(@RequestBody String pin) {
+
+        //TODO add appropriate logic
+        return "pin";
+    }
 }
