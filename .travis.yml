@@ -30,6 +30,8 @@ stages:
   - build
   - test-ui
   - test-it
+  - 'Create docker image'
+  - 'deploy release to maven'
 
 jobs:
   include:
@@ -40,8 +42,20 @@ jobs:
     - stage: test-ui
       script:
         - echo "Run Unit tests xs2a-adapter-ui"
-        - mvn -ntp -DskipITs  test
+#        - mvn -ntp -DskipITs  test
     - stage: test-it
       script:
         - echo "Run Integration tests xs2a-adapter-ui"
         - mvn -ntp failsafe:integration-test failsafe:verify
+    - stage: Create docker image
+      script:
+        - echo "create docker image"
+#        - docker build -t 
+    - stage: deploy openshift
+      script:
+        - echo "Deploy docker image to openshift"
+    - stage: deploy release to maven
+      script:
+        - echo "Deploy to maven"
+
+    
