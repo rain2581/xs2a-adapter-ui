@@ -31,11 +31,11 @@ stages:
   - test-ui
   - test-it
   - name: 'Create docker image'
-    if: branch = develop
+    if: branch = develop AND "$TRAVIS_PULL_REQUEST" = "false"
   - name: 'deploy openshift'
-    if: branch = develop
+    if: branch = develop AND "$TRAVIS_PULL_REQUEST" = "false"
   - name: 'deploy release to maven'
-    if: branch = master
+    if: tag =~ /v[0-9]+\.[0-9]+\.[0-9]+(-.*)?$/
 
 jobs:
   include:
