@@ -35,7 +35,7 @@ jobs:
     - stage: build
       script:
         - echo "Build xs2a-adapter-ui"
-        - mvn -ntp clean install -DskipITs -DskipTests -B -Dbuild.number=${TRAVIS_BUILD_NUMBER} -Djacoco.skip=false
+        - mvn -ntp clean install -DskipITs -DskipTests -Djacoco.skip=false
     - stage: test-ui
       script:
         - echo "Run Unit tests xs2a-adapter-ui"
