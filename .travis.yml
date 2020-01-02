@@ -1,0 +1,31 @@
+language: java
+jdk:
+  - openjdk8
+cache:
+  directories:
+    - "$HOME/.m2"
+
+# Global env variables
+env:
+  global:
+    - XS2a_ADAPTER_UI_IMAGE="xs2a-adapter-ui"
+    - OPENSHIFT_REGISTRY="openshift-registry.adorsys.de"
+    - OPENSHIFT_NAMESPACE="xs2a-adapter-dev"
+stages:
+  - build
+  - test-ui
+  - test-it
+jobs:
+  include:
+    - stage: build
+      script:
+        - echo "Build xs2a-adapter-ui"
+        - mvn -ntp clean install -DskipITs -DskipTests -B -Dbuild.number=${TRAVIS_BUILD_NUMBER} -Djacoco.skip=false
+    - stage: test-ui
+      script:
+        - echo "Run Unit tests xs2a-adapter-ui"
+        - mvn -ntp -DskipITs  test
+    - stage: test-it
+      script:
+        - echo "Run Integration tests xs2a-adapter-ui"
+        - mvn -ntp failsafe:integration-test failsafe:verify
