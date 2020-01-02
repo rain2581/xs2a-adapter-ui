@@ -14,7 +14,7 @@ branches:
     - master
     - develop
     - /v[0-9]+\.[0-9]+\.[0-9]+(-.*)?$/
-    
+
 services: docker
 # Global env variables
 env:
@@ -22,6 +22,10 @@ env:
     - XS2a_ADAPTER_UI_IMAGE="xs2a-adapter-ui"
     - OPENSHIFT_REGISTRY="openshift-registry.adorsys.de"
     - OPENSHIFT_NAMESPACE="xs2a-adapter-dev"
+
+install:
+  - mvn --version
+
 stages:
   - build
   - test-ui
