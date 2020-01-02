@@ -30,8 +30,12 @@ stages:
   - build
   - test-ui
   - test-it
-  - 'Create docker image'
-  - 'deploy release to maven'
+  - name: 'Create docker image'
+    if: branch = develop
+  - name: 'deploy openshift'
+    if: branch = develop
+  - name: 'deploy release to maven'
+    if: branch = master
 
 jobs:
   include:
