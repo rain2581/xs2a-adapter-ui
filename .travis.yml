@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - openjdk8
+  - openjdk11
 cache:
   directories:
     - "$HOME/.m2"
@@ -30,6 +30,7 @@ stages:
   - build
   - test-ui
   - test-it
+
 jobs:
   include:
     - stage: build
