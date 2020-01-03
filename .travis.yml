@@ -28,6 +28,7 @@ env:
     - XS2A_ADAPTER_UI_IMAGE="xs2a-adapter-ui"
     - OPENSHIFT_REGISTRY="openshift-registry.adorsys.de"
     - OPENSHIFT_NAMESPACE="xs2a-adapter-dev"
+    - DOCKERHUB_NAMESPACE="adorsys"
 
 install:
   - mvn --version
@@ -36,18 +37,23 @@ script:
   - mvn -ntp clean install -DskipITs -DskipTests -B -Dbuild.number=${TRAVIS_BUILD_NUMBER} -Djacoco.skip=false
 
 stages:
+  - build
   - test-ui
   - test-it
   - test-sonarcloud
   - name: Docker
     if: branch = develop AND type = push
-  - name: 'deploy openshift'
+  - name: "deploy image to openshift"
     if: branch = develop AND type = push
-  - name: 'deploy release to maven'
+  - name: "deploy release to maven"
     if: tag =~ /v[0-9]+\.[0-9]+\.[0-9]+(-.*)?$/
 
 jobs:
   include:
+    - stage: build
+      script:
+        - echo "Build xs2a-adapter-ui"
+        - mvn -ntp clean install -DskipITs -DskipTests -B -Dbuild.number=${TRAVIS_BUILD_NUMBER} -Djacoco.skip=false
 
     - stage: test-ui
       script:
@@ -66,11 +72,9 @@ jobs:
         - echo "mvn jacoco:prepare-agent sonar:sonar -Dsonar.projectKey=$PROJECT_KEY -Djacoco.skip=false"
 
     - stage: Docker
-      name: "Create docker image and push it to.."
+      name: "Create docker image and push it to Dockerhub"
       env:
-        - REGISTRY=$OPENSHIFT_REGISTRY
-        - NAMESPACE=$OPENSHIFT_NAMESPACE
-        - TAG=developls 
+        - TAG=develop
       deploy:
         provider: script
         skip_cleanup: true
@@ -78,16 +82,21 @@ jobs:
           branch: develop
         script: >-
           echo "create docker image" &&
-          docker build -t "$REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG" .
-#          - docker login -u $USERNAME -p $TOKEN $REGISTRY
-#          - docker push $REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG
+          docker build -t "$DOCKERHUB_NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG" .
+#          - docker login -u $DOCKERHUB_USERNAME -p $TOKEN 
+#          - docker push $DOCKERHUB_NAMESPACE$XS2A_ADAPTER_UI_IMAGE:$TAG
 
-    - stage: deploy openshift
+    - stage: deploy image to openshift
+      env:
+        - OPENSHIFT_NAMESPACE=$OPENSHIFT_NAMESPACE_DEV
+        - TAG=develop
       script:
-        - echo "Deploy docker image to openshift"
-#        - docker login -u $USERNAME -p $TOKEN $REGISTRY
-#        - docker pull $REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG
-#        - docker tag $REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG $OPENSHIFT_REGISTRY/$OPENSHIFT_NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:latest
+        - echo "Deploy docker image from dockerhub to openshift"
+#        - docker login -u $USERNAME -p $TOKEN 
+#        - docker pull $DOCKERHUB_NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG
+#        - docker login -u $USERNAME -p $TOKEN $OPENSHIFT_REGISTRY
+#        - docker tag $DOCKERHUB_NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG $OPENSHIFT_REGISTRY/$OPENSHIFT_NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:latest
+#        - docker push $OPENSHIFT_REGISTRY/$OPENSHIFT_NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:latest
 
 #Deploy to maven if tag set (only vX.X.X or vX.X.X-name  tags allowed)
     - stage: deploy release to maven
