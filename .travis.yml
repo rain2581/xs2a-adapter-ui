@@ -47,8 +47,12 @@ stages:
 jobs:
   include:
     - stage: build
+      REGISTRY: $OPENSHIFT_REGISTRY
+      NAMESPACE: $OPENSHIFT_NAMESPACE
+      TAG: develop
       script:
         - echo "Build xs2a-adapter-ui"
+        - echo "$REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG"
         - mvn -ntp clean install -DskipITs -DskipTests -Djacoco.skip=false
 
     - stage: test-ui
@@ -68,8 +72,8 @@ jobs:
 
     - stage: Docker
       name: "Create docker image and push it to.."
-      REGISTRY: OPENSHIFT_REGISTRY
-      NAMESPACE: OPENSHIFT_NAMESPACE
+      REGISTRY: $OPENSHIFT_REGISTRY
+      NAMESPACE: $OPENSHIFT_NAMESPACE
       TAG: develop
       script:
         - echo "create docker image"
