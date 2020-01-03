@@ -55,6 +55,7 @@ jobs:
     - stage: test-ui
       script:
         - echo "Run Unit tests xs2a-adapter-ui"
+        - ls -lh
 #        - mvn -ntp -DskipITs  test
 
     - stage: test-it
@@ -75,6 +76,7 @@ jobs:
         - TAG=developls 
       script:
         - echo "create docker image"
+        - ls -lh
         - docker build -t "$REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG" .
 #        - docker login -u $USERNAME -p $TOKEN $REGISTRY
 #        - docker push $REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG
