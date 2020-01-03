@@ -4,6 +4,12 @@ jdk:
 cache:
   directories:
     - "$HOME/.m2"
+##Sonar Cloud addons
+#addons:
+#  sonarcloud:
+#    organization: "adorsys"
+#    token: ${SONARCLOUD_TOKEN}
+
 # Build only commits on master and release tags for the "Build pushed branches" feature.
 # This prevents building twice on PRs originating from our repo ("Build pushed pull requests)".
 # See:
@@ -19,7 +25,7 @@ services: docker
 # Global env variables
 env:
   global:
-    - XS2a_ADAPTER_UI_IMAGE="xs2a-adapter-ui"
+    - XS2A_ADAPTER_UI_IMAGE="xs2a-adapter-ui"
     - OPENSHIFT_REGISTRY="openshift-registry.adorsys.de"
     - OPENSHIFT_NAMESPACE="xs2a-adapter-dev"
 
@@ -30,7 +36,8 @@ stages:
   - build
   - test-ui
   - test-it
-  - name: 'Create docker image'
+  - test-sonarcloud
+  - name: Docker
     if: branch = develop AND type = push
   - name: 'deploy openshift'
     if: branch = develop AND type = push
@@ -43,23 +50,52 @@ jobs:
       script:
         - echo "Build xs2a-adapter-ui"
         - mvn -ntp clean install -DskipITs -DskipTests -Djacoco.skip=false
+
     - stage: test-ui
       script:
         - echo "Run Unit tests xs2a-adapter-ui"
 #        - mvn -ntp -DskipITs  test
+
     - stage: test-it
       script:
         - echo "Run Integration tests xs2a-adapter-ui"
         - mvn -ntp failsafe:integration-test failsafe:verify
-    - stage: Create docker image
+
+    - stage: test-sonarcloud
+      script:
+        - echo "Run sonarcloud test"
+        - echo "mvn jacoco:prepare-agent sonar:sonar -Dsonar.projectKey=$PROJECT_KEY -Djacoco.skip=false"
+
+    - stage: Docker
+      name: "Create docker image and push it to.."
+      REGISTRY: OPENSHIFT_REGISTRY
+      NAMESPACE: OPENSHIFT_NAMESPACE
+      TAG: develop
       script:
         - echo "create docker image"
-#        - docker build -t 
+        - docker build -t "$REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG" .
+#        - docker login -u $USERNAME -p $TOKEN $REGISTRY
+#        - docker push $REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG
+
     - stage: deploy openshift
       script:
         - echo "Deploy docker image to openshift"
+#        - docker login -u $USERNAME -p $TOKEN $REGISTRY
+#        - docker pull $REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG
+#        - docker tag $REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG $OPENSHIFT_REGISTRY/$OPENSHIFT_NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:latest
+
+#Deploy to maven if tag set (only vX.X.X or vX.X.X-name  tags allowed)
     - stage: deploy release to maven
       script:
         - echo "Deploy to maven"
+#        -  mvn --settings scripts/mvn-release-settings.xml -Prelease -DskipTests -B -U deploy
 
+#notifications:
+#  email:
+#    recipients:
+#      secure:
+#  slack:
+#   secure: 
+#   on_success: never
+#   on_failure: always
     
