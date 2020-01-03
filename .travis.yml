@@ -47,9 +47,10 @@ stages:
 jobs:
   include:
     - stage: build
-      REGISTRY: $OPENSHIFT_REGISTRY
-      NAMESPACE: $OPENSHIFT_NAMESPACE
-      TAG: develop
+      env:
+        - REGISTRY=$OPENSHIFT_REGISTRY
+        - NAMESPACE=$OPENSHIFT_NAMESPACE
+        - TAG=develop
       script:
         - echo "Build xs2a-adapter-ui"
         - echo "$REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG"
