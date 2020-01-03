@@ -31,9 +31,11 @@ env:
 
 install:
   - mvn --version
+script:
+#build service
+  - mvn -ntp clean install -DskipITs -DskipTests -B -Dbuild.number=${TRAVIS_BUILD_NUMBER} -Djacoco.skip=false
 
 stages:
-  - build
   - test-ui
   - test-it
   - test-sonarcloud
@@ -46,11 +48,6 @@ stages:
 
 jobs:
   include:
-    - stage: build
-      script:
-        - echo "Build xs2a-adapter-ui"
-        - echo "$REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG"
-        - mvn -ntp clean install -DskipITs -DskipTests -Djacoco.skip=false
 
     - stage: test-ui
       script:
@@ -74,12 +71,14 @@ jobs:
         - REGISTRY=$OPENSHIFT_REGISTRY
         - NAMESPACE=$OPENSHIFT_NAMESPACE
         - TAG=developls 
-      script:
-        - echo "create docker image"
-        - ls -lh
-        - docker build -t "$REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG" .
-#        - docker login -u $USERNAME -p $TOKEN $REGISTRY
-#        - docker push $REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script: >-
+          echo "create docker image" &&
+          docker build -t "$REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG" .
+#          - docker login -u $USERNAME -p $TOKEN $REGISTRY
+#          - docker push $REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG
 
     - stage: deploy openshift
       script:
