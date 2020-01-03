@@ -74,6 +74,8 @@ jobs:
       deploy:
         provider: script
         skip_cleanup: true
+        on:
+          branch: develop
         script: >-
           echo "create docker image" &&
           docker build -t "$REGISTRY/$NAMESPACE/$XS2A_ADAPTER_UI_IMAGE:$TAG" .
